@@ -1,0 +1,2 @@
+ echo "\n$day,$orgo,".$d['ssa_amount'].",".$d['native'].",$aca,$yisheng,$fassilt";
+
