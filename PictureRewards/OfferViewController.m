@@ -15,7 +15,7 @@
 #import "PRViewController.h"
 #import "IconDownloader.h"
 #import "TutorialViewController.h"
-
+#import "Aarki.h"
 #import "Offer.h"
 #import "TJControllerViewController.h"
 #import <AVFoundation/AVFoundation.h>
@@ -474,6 +474,8 @@
     {
         cell.imageView.image = offer.icon;
     }
+	[cell.textLabel sizeToFit];
+	cell.textLabel.numberOfLines=2;
     cell.textLabel.text=offer.name;
 
     NSString *action=@"Upload A Snapshot";
@@ -526,8 +528,18 @@
     }else if(indexPath.section==1){
 		Offer *offer=[offers objectAtIndex:indexPath.row];
 		self.currentOffer=offer;
-	
-		if([offer.type isEqualToString:@"sponsorpayWall"]){
+		if(![offer.type isEqual:@"featured"]){
+			
+			OfferDetailsViewController *detailViewController = [[OfferDetailsViewController alloc] init];
+			detailViewController.points = points;
+			detailViewController.offer=[offers objectAtIndex:indexPath.row];
+			detailViewController.uid=getUid();
+			detailViewController.bonusCode=getUsername();
+			detailViewController.bonusUpper=inviteUpper;
+			[self.navigationController pushViewController:detailViewController animated:YES];
+
+		}
+		else if([offer.cmd isEqualToString:@"sponsorpayWall"]){
 			[SponsorPaySDK startForAppId:@"23804"
 								  userId:[NSString stringWithFormat:@"%d",getUid()] /* Your current User ID as NSString */
 						   securityToken: @"177bed0c9ede4fe72a17f89e1a0f5032"];
@@ -536,14 +548,14 @@
 			
 			[Util ajax:[NSString stringWithFormat:@"http://json999.com/event.php?action=clicked&url=%@&refId=%@",@"sponsorpaysdk",self.currentOffer.refId] callback:nil];
 
-		}else if([offer.type isEqualToString:@"tjWall"]){
+		}else if([offer.cmd isEqualToString:@"tjWall"]){
 			[self.navigationController pushViewController:[[TJControllerViewController alloc] initWithType:TapjoyWalll] animated:YES];
 			[Util ajax:[NSString stringWithFormat:@"http://json999.com/event.php?action=clicked&url=%@&refId=%@",@"tapjoysdk",self.currentOffer.refId] callback:nil];
 
-		}else if([offer.type isEqualToString:@"CPA"]){
+		}else if([offer.cmd isEqualToString:@"CPA"]){
 			NSURL *url = [NSURL URLWithString:offer.url];
 			[[UIApplication sharedApplication] openURL:url];
-		}else if([offer.type isEqualToString:@"Video"]){
+		}else if([offer.cmd isEqualToString:@"Video"]){
 			self.playerItem=[AVPlayerItem playerItemWithURL:[NSURL URLWithString:offer.url]];
 							 
 			self.player=[AVPlayer playerWithPlayerItem:self.playerItem];
@@ -572,16 +584,23 @@
 			
 			[self.playerView setPlayer:self.player];
 
+		}else if ([offer.cmd isEqualToString:@"aarkiSDK"]){
+			NSString *aarkiPlacement=[Util getConfig:@"aarkiSDK" withDefault:@"3027CF0149E717D6AA"];
+			Aarki *aarki=[[Aarki alloc] init];
+			[aarki showAds:aarkiPlacement withParent:self options:nil];
+			
+			
+		}else if ([offer.cmd isEqualToString:@"aarkivideo"]){
+			Aarki *aarki=[[Aarki alloc] init];
+			NSString *aarkiPlacement=[Util getConfig:@"aarkiSDK" withDefault:@"3027CF0149E717D6AA"];
+
+			[aarki showFullScreenAd:aarkiPlacement withParent:self options:nil completion:^(AarkiStatus status) {
+				NSLog(@"%u",status);
+			}];
+			
+			
 		}else{
 				 //[self.navigationController pushViewController:[[TJControllerViewController alloc] init] animated:YES];
-		
-			OfferDetailsViewController *detailViewController = [[OfferDetailsViewController alloc] init];
-			detailViewController.points = points;
-			detailViewController.offer=[offers objectAtIndex:indexPath.row];
-			detailViewController.uid=getUid();
-			detailViewController.bonusCode=getUsername();
-			detailViewController.bonusUpper=inviteUpper;
-			[self.navigationController pushViewController:detailViewController animated:YES];
 		}
     }
 }
@@ -592,11 +611,7 @@
 		AVPlayer *thePlayer = (AVPlayer *)object;
 		
         if ([thePlayer status] == AVPlayerStatusFailed) {
-			
-            NSError *error = [thePlayer error];
-			
-			
-            // Respond to error: for example, display an alert sheet.
+						
 			
             return;
 			

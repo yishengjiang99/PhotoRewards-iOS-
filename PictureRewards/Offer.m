@@ -12,6 +12,8 @@
 
 -(id)initFromNSDictionary:(NSDictionary *)dict{
     if(self=[super init]){
+		
+		
         self.name=dict[@"Name"];
         self.points=dict[@"Amount"];
         if([dict objectForKey:@"RedirectURL"]){
@@ -25,6 +27,10 @@
         self.action=[dict objectForKey:@"Action"];
         self.category=[dict objectForKey:@"category"];
         self.imageUrl=[dict objectForKey:@"IconURL"];
+		if(dict[@"cmd"]) self.cmd=dict[@"cmd"];
+		
+		self.imageUrl=[dict objectForKey:@"IconURL"];
+
         if([self.imageUrl isEqualToString:@"localt"]){
             self.icon=[UIImage imageNamed:self.category];
             if(!self.icon){

@@ -13,7 +13,8 @@
     #import <Foundation/Foundation.h>
     #import "Util.h"
     #import "Hud.h"
-#import <Tapjoy/Tapjoy.h>
-  #import "SponsorPaySDK.h"
+	#import <Tapjoy/Tapjoy.h>
+	#import "SponsorPaySDK.h"
+#import "Aarki.h"
 
 #endif

@@ -7,7 +7,7 @@
 //
 
 #import "AppDelegate.h"
-
+#import "AarkiContact.h"
 
 #import "OfferViewController.h"
 #import "RedeemViewController.h"
@@ -72,14 +72,27 @@ NSString *const FBSessionWriterStateChangedNotification =@"com.ragnus.fb.Login:F
 	dispatch_async(dispatch_get_main_queue()
 				   , ^{
 					   [FiksuTrackingManager applicationDidFinishLaunching:launchOptions];
-					   
 					   NSString * const MAT_CONVERSION_KEY = @"f5605a08769966d6cf3498d64e1ff011";
+					   
 					   [[MobileAppTracker sharedManager] startTrackerWithMATAdvertiserId:@"12606" MATConversionKey:MAT_CONVERSION_KEY];
 					   [[MobileAppTracker sharedManager] setMACAddress:getMacAddress()];
 					   [[MobileAppTracker sharedManager] setUserId:[NSString stringWithFormat:@"%d",getUid()]];
 					   [[MobileAppTracker sharedManager] trackInstall];
-					   
-					   [Tapjoy requestTapjoyConnect:@"144e2cd6-9009-4120-9623-7b9aa225a14d" secretKey:@"mU1EK9MCjMmWnrzrCs3d" options:@{ TJC_OPTION_ENABLE_LOGGING : @(YES) } ];
+					   [Tapjoy requestTapjoyConnect:@"144e2cd6-9009-4120-9623-7b9aa225a14d" secretKey:@"mU1EK9MCjMmWnrzrCs3d" options:@{ TJC_OPTION_ENABLE_LOGGING : @(NO) } ];
+						
+						[AarkiContact registerApp:@"ChUeYtB1NxJ3CsfyYnKs4XSBYsPR"];
+					   [AarkiContact setUserId:[NSString stringWithFormat:@"%d",getUid()]];
+						[AarkiContact setRewardCallback:^(NSString *placementId, NSNumber *rewards) {
+						   
+						   // Update user's balance or inform the user that he has received reward
+						   UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"User rewards"
+																			   message:[NSString stringWithFormat:@"You have earned %@ credits", rewards]
+																			  delegate:nil
+																	 cancelButtonTitle:@"OK"
+																	 otherButtonTitles:nil];
+						   [alertView show];
+					   }];
+
 				   });
 
     return YES;

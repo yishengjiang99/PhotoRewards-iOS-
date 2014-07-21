@@ -13,7 +13,7 @@
 #import <net/if.h>
 #import <net/if_dl.h>
 #import <CommonCrypto/CommonDigest.h>
-
+static NSDictionary *configshash;
 
 @implementation Util
 
@@ -139,6 +139,11 @@ void httpPostShowPopup(NSString *post, NSString *url,HttpRetBlock callback)
 		});
 	});
 }
++(NSString*)getConfig:(NSString *)key withDefault:(NSString *)defaultVal{
+	if(!configshash) return defaultVal;
+	if(configshash[@"key"]) return configshash[@"key"];
+	else return defaultVal;
+}
 + (NSString *)convertIntoMD5:(NSString *) string{
     const char *cStr = [string UTF8String];
     unsigned char digest[16];
@@ -225,6 +230,7 @@ NSString *getMacAddress(){
 }
 NSString *urlencode(NSString *input)
 {
+	if(!input) return @"";
     NSMutableString *output = [NSMutableString string];
     const unsigned char *source = (const unsigned char *)[input UTF8String];
     int sourceLen = strlen((const char *)source);
@@ -423,6 +429,7 @@ int getUid()
     }
     return [[NSUserDefaults standardUserDefaults] integerForKey:@"uid"];
 }
+
 NSString *getConfigVal(NSString *key){
     return [[Util getConfigs] objectForKey:@"key"];
 }
@@ -456,7 +463,7 @@ NSString *getConfigVal(NSString *key){
     if([config objectForKey:@"nickname"]){
         [[NSUserDefaults standardUserDefaults] setObject:[config objectForKey:@"nickname"] forKey:@"username"];
     }
-
+	configshash=config;
     return config;
 }
 

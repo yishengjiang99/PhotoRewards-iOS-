@@ -30,6 +30,7 @@
 		7E0E820B176ABEBF00D800EF /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 7E0E820A176ABEBF00D800EF /* Default@2x.png */; };
 		7E0E820D176ABEBF00D800EF /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 7E0E820C176ABEBF00D800EF /* Default-568h@2x.png */; };
 		7E0E8252176AF2DD00D800EF /* OfferViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E0E8250176AF2DC00D800EF /* OfferViewController.m */; };
+		7E2FFFAB197B15DC009A0230 /* libAarkiSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E2FFFAA197B15DC009A0230 /* libAarkiSDK.a */; };
 		7E39497B1771594400CE9AEE /* RequestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E39497A1771594400CE9AEE /* RequestViewController.m */; };
 		7E3949861771915300CE9AEE /* UIFont+SnapAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E3949821771915300CE9AEE /* UIFont+SnapAdditions.m */; };
 		7E3949871771915300CE9AEE /* UIButton+SnapAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E3949841771915300CE9AEE /* UIButton+SnapAdditions.m */; };
@@ -217,6 +218,9 @@
 		7E0E820C176ABEBF00D800EF /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		7E0E824F176AF2DC00D800EF /* OfferViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OfferViewController.h; sourceTree = "<group>"; };
 		7E0E8250176AF2DC00D800EF /* OfferViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OfferViewController.m; sourceTree = "<group>"; };
+		7E2FFFA8197B15DC009A0230 /* Aarki.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Aarki.h; sourceTree = "<group>"; };
+		7E2FFFA9197B15DC009A0230 /* AarkiContact.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AarkiContact.h; sourceTree = "<group>"; };
+		7E2FFFAA197B15DC009A0230 /* libAarkiSDK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libAarkiSDK.a; sourceTree = "<group>"; };
 		7E3949791771594300CE9AEE /* RequestViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RequestViewController.h; sourceTree = "<group>"; };
 		7E39497A1771594400CE9AEE /* RequestViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RequestViewController.m; sourceTree = "<group>"; };
 		7E3949821771915300CE9AEE /* UIFont+SnapAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIFont+SnapAdditions.m"; sourceTree = "<group>"; };
@@ -477,6 +481,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7E0DD15F1978222100926D2B /* AssetsLibrary.framework in Frameworks */,
+				7E2FFFAB197B15DC009A0230 /* libAarkiSDK.a in Frameworks */,
 				7E57DA381977945A0068FF7C /* CoreMedia.framework in Frameworks */,
 				7E57D968197733370068FF7C /* StoreKit.framework in Frameworks */,
 				7E052CCE17720BA400788F75 /* Social.framework in Frameworks */,
@@ -899,6 +904,9 @@
 		7EFBAB731770569B00D6245F /* sdk */ = {
 			isa = PBXGroup;
 			children = (
+				7E2FFFA8197B15DC009A0230 /* Aarki.h */,
+				7E2FFFA9197B15DC009A0230 /* AarkiContact.h */,
+				7E2FFFAA197B15DC009A0230 /* libAarkiSDK.a */,
 				7E0DD1601978272C00926D2B /* JSON.h */,
 				7E0DD1611978272C00926D2B /* NSObject+SBJSON.h */,
 				7E0DD1621978272C00926D2B /* NSObject+SBJSON.m */,
@@ -1186,7 +1194,7 @@
 				PROVISIONING_PROFILE = "";
 				SDKROOT = iphoneos;
 				VALID_ARCHS = "armv6 armv7 armv7s arm64";
-				"VALID_ARCHS[sdk=*]" = "arm64 armv7 armv7s";
+				"VALID_ARCHS[sdk=*]" = "armv6 armv7 armv7s arm64";
 			};
 			name = Debug;
 		};
@@ -1223,10 +1231,7 @@
 		7E0E8225176ABEC000D800EF /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = (
-					armv7,
-					armv7s,
-				);
+				ARCHS = "$(ARCHS_STANDARD)";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1241,20 +1246,21 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "PictureRewards/PictureRewards-Prefix.pch";
 				INFOPLIST_FILE = "PictureRewards/PictureRewards-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/PictureRewards\"",
 					"$(PROJECT_DIR)/AarkiSDK",
+					"$(PROJECT_DIR)/PictureRewards",
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-all_load",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "33D553FF-E814-4877-A3F4-6662D1AD0260";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -1262,12 +1268,9 @@
 		7E0E8226176ABEC000D800EF /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = (
-					armv7,
-					armv7s,
-				);
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				ARCHS = "$(ARCHS_STANDARD)";
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)",
@@ -1280,20 +1283,21 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "PictureRewards/PictureRewards-Prefix.pch";
 				INFOPLIST_FILE = "PictureRewards/PictureRewards-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/PictureRewards\"",
 					"$(PROJECT_DIR)/AarkiSDK",
+					"$(PROJECT_DIR)/PictureRewards",
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-all_load",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "33D553FF-E814-4877-A3F4-6662D1AD0260";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

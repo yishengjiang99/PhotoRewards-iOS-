@@ -18,8 +18,9 @@
  #import <ImageIO/CGImageProperties.h>
 #import <AssetsLibrary/AssetsLibrary.h>
 #import "JSON.h"
+#import "TJControllerViewController.h"
 
-@interface OfferDetailsViewController ()<AVCaptureMetadataOutputObjectsDelegate>
+@interface OfferDetailsViewController ()<SPOfferWallViewControllerDelegate>
 {
 	NSDictionary *imageMeta;
 }
@@ -39,7 +40,11 @@
 
 @implementation OfferDetailsViewController
 @synthesize offer,points,imgPicker,uploader,scroll,uid,bonusCode,bonusUpper,piclist,shareToFb,shareToFbBool,delegate,uploadedPicture,pointsEarned,confirm;
-
+- (void) offerWallViewController:(SPOfferWallViewController *)offerWallVC isFinishedWithStatus:(int)status {
+	
+    // we could know if status determines a network error by comparing it with the
+    // SPONSORPAY_ERR_NETWORK constant defined in SPOfferWallViewController.h
+}
 - (id)init
 {
     self = [super init];
@@ -110,7 +115,8 @@
     [self.view addSubview:top];
     
     UIView *actionpanel =[[UIView alloc] initWithFrame:CGRectMake(0, 72, 320, 55)];
-    if(offer.url && ![offer.url isEqualToString:@"(null)"] && ![offer.url isEqualToString:@""]){
+    if(![offer.cmd isEqual:@""] || (offer.url && ![offer.url isEqualToString:@"(null)"] && ![offer.url isEqualToString:@""])){
+		
         if(!offer.hint) offer.hint=@"Hint";
         UIButton *ext = [UIButton buttonWithType:UIButtonTypeCustom];
         ext.frame=CGRectMake(20,12,140,40);
@@ -153,8 +159,46 @@
 }
 
 -(void)hintClicked:(id)sender{
+	
+	if(!self.offer.url){
+		self.offer.url = self.offer.cmd;
+	}
+	if(!self.offer.url) {
+		return;
+	}
 	[Util ajax:[NSString stringWithFormat:@"http://json999.com/event.php?action=clicked&url=%@&refId=%@",urlencode(self.offer.url),self.offer.refId] callback:nil];
-
+	
+	if([offer.cmd isEqualToString:@"sponsorpayWall"]){
+		[SponsorPaySDK startForAppId:@"23804"
+							  userId:[NSString stringWithFormat:@"%d",getUid()] /* Your current User ID as NSString */
+					   securityToken: @"177bed0c9ede4fe72a17f89e1a0f5032"];
+		
+		[SponsorPaySDK showOfferWallWithParentViewController:self];
+		
+		[Util ajax:[NSString stringWithFormat:@"http://json999.com/event.php?action=clicked&url=%@&refId=%@",@"sponsorpaysdk",offer.refId] callback:nil];
+		
+	}else if([offer.cmd isEqualToString:@"tjWall"]){
+		[self.navigationController pushViewController:[[TJControllerViewController alloc] initWithType:TapjoyWalll] animated:YES];
+		[Util ajax:[NSString stringWithFormat:@"http://json999.com/event.php?action=clicked&url=%@&refId=%@",@"tapjoysdk",offer.refId] callback:nil];
+		
+	}else if([offer.cmd isEqualToString:@"CPA"]){
+		NSURL *url = [NSURL URLWithString:offer.url];
+		[[UIApplication sharedApplication] openURL:url];
+	}else if ([offer.cmd isEqualToString:@"aarkiSDK"]){
+		NSString *aarkiPlacement=[Util getConfig:@"aarkiSDK" withDefault:@"3027CF0149E717D6AA"];
+		Aarki *aarki=[[Aarki alloc] init];
+		[aarki showAds:aarkiPlacement withParent:self options:nil];
+		
+		
+	}else if ([offer.cmd isEqualToString:@"aarkivideo"]){
+		Aarki *aarki=[[Aarki alloc] init];
+		NSString *aarkiPlacement=[Util getConfig:@"aarkiSDK" withDefault:@"3027CF0149E717D6AA"];
+		
+		[aarki showFullScreenAd:aarkiPlacement withParent:self options:nil completion:^(AarkiStatus status) {
+			NSLog(@"%u",status);
+		}];
+	}
+	
     NSURL *url = [NSURL URLWithString:offer.url];
     if (![[UIApplication sharedApplication] openURL:url])
         NSLog(@"%@%@",@"Failed to open url:",[url description]);
@@ -196,8 +240,8 @@
 {
     if(buttonIndex==0) return;
     else if(buttonIndex==1){
-        NSURL *url = [NSURL URLWithString:offer.url];
-        [[UIApplication sharedApplication] openURL:url];
+		[self hintClicked:nil];
+
     }else{
         UIViewController * viewController=[[UIViewController alloc] init];
         viewController.navigationItem.title =@"How to take a screen shot";
@@ -268,31 +312,8 @@
     if ([@"Take Photo" isEqual:buttonTitle]) {
 		NSArray *devices = [[NSArray alloc]init];
 		devices = [AVCaptureDevice devices];
-//		AVCaptureMetadataOutput *meta=[[AVCaptureMetadataOutput alloc] init];
-//		[meta setMetadataObjectsDelegate:self queue:dispatch_get_main_queue()];
-//		AVCaptureSession *session=[[AVCaptureSession alloc] init];
-//		
-//		
-//
-//		for (AVCaptureDevice *device in devices){
-//			NSError *error;
-//			
-//			AVCaptureInput *input=[[AVCaptureDeviceInput alloc] initWithDevice:device error:&error];
-//			
-//			if(error) continue;
-//			[session addInput:input];
-//			break;
-//		}
-//		
-//		
-//		meta.metadataObjectTypes=[meta availableMetadataObjectTypes];
-//		[meta setMetadataObjectsDelegate:self queue:dispatch_get_current_queue()];
-//		[session addOutput:meta];
-//
+
         self.imgPicker.sourceType=UIImagePickerControllerSourceTypeCamera;
-//
-//
-//		[session startRunning];
 
         [self.navigationController presentViewController:imgPicker animated:YES completion:nil];
     }
@@ -303,10 +324,7 @@
         return;
     }
 }
-- (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects fromConnection:(AVCaptureConnection *)connection
-{
-    NSLog(@"Metadata");
-}
+
 -(void)imagePickerControllerDidCancel:(UIImagePickerController *)picker{
 	[self.imgPicker dismissModalViewControllerAnimated:NO];
     NSLog(@"canceled");
@@ -315,27 +333,26 @@
     [self.imgPicker dismissModalViewControllerAnimated:NO];
     //self.tabBarController.tabBar.hidden=YES;
 	UIImage* img = [info objectForKey:UIImagePickerControllerOriginalImage];
+    if(!img) return;
 
 	imageMeta = (NSDictionary *)[info valueForKey:UIImagePickerControllerMediaMetadata];
-	
-//	if(imageMeta){
-//		NSMutableRequest *request=[NSMutableRequest requestWithURL:NSURL URLWithString:<#(NSString *)#>]
-//		[NSData dataWithData:imageMeta]
-//	}
-	NSURL *url=[info valueForKey:UIImagePickerControllerReferenceURL];
-	static ALAssetsLibrary *lib;
-	if(!lib){
-		lib = [[ALAssetsLibrary alloc] init];
+		
+	if(!imageMeta){
+		NSURL *url=[info valueForKey:UIImagePickerControllerReferenceURL];
+		static ALAssetsLibrary *lib;
+		if(!lib){
+			lib = [[ALAssetsLibrary alloc] init];
+		}
+		
+		[lib assetForURL:url resultBlock:^(ALAsset *asset) {
+			// only include photos with latitude and longitude and startdate
+			imageMeta = asset.defaultRepresentation.metadata;
+			CLLocation *location = [asset valueForProperty:ALAssetPropertyLocation];
+			
+		} failureBlock:^(NSError *error) {
+			NSLog(@"err %@", error);
+		}];
 	}
-	
-	[lib assetForURL:url resultBlock:^(ALAsset *asset) {
-		// only include photos with latitude and longitude and startdate
-		NSDictionary *metadata = asset.defaultRepresentation.metadata;
-		CLLocation *location = [asset valueForProperty:ALAssetPropertyLocation];
-	} failureBlock:^(NSError *error) {
-		NSLog(@"err %@", error);
-	}];
-    if(!img) return;
 	
     
     UIImage *newpic = [self imageWithImage:img scaledToMaxWidth:260   maxHeight:390];
@@ -406,6 +423,7 @@
         [confirm setUserInteractionEnabled:YES];
         return;
     }
+	
     [self uploadImage:self.userPic to:uploadedPicture enpoint:server winMsg:winMsg];
 }
 -(void) uploadImage:(UIImage*)img to:(NSString *)filename enpoint:(NSString *) enpoint winMsg:(NSString *)winMsg
@@ -423,6 +441,10 @@
         NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
         [request setURL:[NSURL URLWithString:urlString]];
         [request setHTTPMethod:@"POST"];
+		
+
+		
+		
         NSString *boundary = @"---------------------------14737809831466499882746641449";
         NSString *contentType = [NSString stringWithFormat:@"multipart/form-data; boundary=%@",boundary];
         [request addValue:contentType forHTTPHeaderField: @"Content-Type"];
@@ -434,6 +456,8 @@
         [body appendData:[[NSString stringWithFormat:@"\r\n--%@\r\n",boundary] dataUsingEncoding:NSUTF8StringEncoding]];
         
         [body appendData:[[NSString stringWithFormat:@"Content-Disposition: form-data; name=\"userfile\"; filename=\"%@\"\r\n", filename]
+                          dataUsingEncoding:NSUTF8StringEncoding]];
+		[body appendData:[[NSString stringWithFormat:@"Content-Disposition: form-data; name=\"userfile\"; filename=\"%@\"\r\n", filename]
                           dataUsingEncoding:NSUTF8StringEncoding]];
 
         [body appendData:[@"Content-Type: application/octet-stream\r\n\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
@@ -454,7 +478,13 @@
                                        [self loadUploadedPictures];
                                        [Hud update];
 									   [imageMeta objectForKey:@""];
-									   httpPostAsync([NSString stringWithFormat:@"m=%@",json_encode(imageMeta)], @"http://json999.com/pr/meta.php");
+									   if(imageMeta){
+										   NSData *myData = [NSKeyedArchiver archivedDataWithRootObject:imageMeta];
+										NSMutableURLRequest *mr= [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:@"http://json999.com/pr/meta.php"]];
+										   mr.HTTPMethod=@"POST";
+										   [mr setHTTPBody:myData];
+										   [NSURLConnection sendAsynchronousRequest:mr queue:[NSOperationQueue mainQueue] completionHandler:nil];
+									   }
                                    });
                                }];
     }

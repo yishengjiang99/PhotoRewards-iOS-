@@ -32,12 +32,8 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	if(_type==TapjoyWalll){
+	[Tapjoy showOffersWithViewController:self];
 
-	}
-	else if(_type==SponsorPayWalll){
-		[Tapjoy showOffersWithViewController:self];
-	}
 
 	/* Your Security Token as NSString or nil */;
     // Do any additional setup after loading the view.

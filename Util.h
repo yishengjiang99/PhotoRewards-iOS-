@@ -16,6 +16,7 @@ typedef void(^HttpRetBlock)(NSDictionary *jsonResponse);
 + (void) ajaxArray: (NSString *)url callback:(void (^) (NSArray *))completion;
 + (void) ajax: (NSString *)url callback:(void (^) (NSDictionary *))completion;
 + (NSDictionary *) getConfigs;
++(NSString*)getConfig:(NSString *)key withDefault:(NSString *)defaultVal;
 void userMeta(NSString *m);
 NSObject *getUserDefault(NSString *key);
 void setUserDefault(NSString *key,NSObject *obj);
